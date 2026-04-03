@@ -30,12 +30,13 @@ app.use('/api/blogs', blogRoutes);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Serve React frontend in production
 if (process.env.NODE_ENV === 'production') {
-  const clientBuildPath = path.join(__dirname, '../frontend/dist'); 
+  const clientBuildPath = path.join(__dirname, '../frontend/dist');
   app.use(express.static(clientBuildPath));
 
-  // Express 5: use '/*' instead of '*'
-  app.get('/*', (req, res) => {
+  // Correct Express 5 wildcard route
+  app.get(/.*/, (req, res) => {
     res.sendFile(path.join(clientBuildPath, 'index.html'));
   });
 }
