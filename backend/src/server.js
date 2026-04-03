@@ -34,7 +34,8 @@ if (process.env.NODE_ENV === 'production') {
   const clientBuildPath = path.join(__dirname, '../frontend/dist'); 
   app.use(express.static(clientBuildPath));
 
-  app.get('*', (req, res) => {
+  // Express 5: use '/*' instead of '*'
+  app.get('/*', (req, res) => {
     res.sendFile(path.join(clientBuildPath, 'index.html'));
   });
 }
