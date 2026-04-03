@@ -1,73 +1,58 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useContext } from 'react';
+// App.jsx
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { useAuth } from './context/AuthContext.jsx'
+import { ToastContainer } from '../src/Toast.jsx'
+import LandingPage from '../src/pages/Landing.jsx'
+import Sidebar from '../src/components/Sidebar.jsx'
+import LoginPage from '../src/pages/Loginpage.jsx'
+import RegisterPage from '../src/pages/Register.jsx'
+import DashboardPage from '../src/pages/Dashboard.jsx'
+import PostsPage from '../src/pages/Postpage.jsx'
+import PostEditorPage from '../src/pages/EditPost.jsx'
+import SettingsPage from '../src/pages/Settingspage.jsx'
+import { ThemePage, CategoriesPage } from '../src/pages/Miscpages .jsx'
 
-// Context
-import { AuthProvider, AuthContext } from './context/AuthContext';
+const Layout = () => (
+  <div className="flex min-h-screen">
+    <Sidebar />
+    <main className="flex-1 overflow-y-auto bg-stone-100">
+      <Outlet />
+    </main>
+  </div>
+)
 
-// Components
-import Navbar from './components/Navbar';
-
-// Pages
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import CreatePost from './pages/CreatePost';
-import EditPost from './pages/EditPost';
-
-// A small helper for routes that require login
-const PrivateRoute = ({ children }) => {
-  const { user, loading } = useContext(AuthContext);
-  
-  if (loading) return <div className="flex justify-center mt-20 font-bold">Loading...</div>;
-  return user ? children : <Navigate to="/login" />;
-};
-
-function App() {
-  return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-          {/* Navbar is outside Routes so it stays visible on every page */}
-          <Navbar />
-
-          <main className="container mx-auto px-4 py-8">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-
-              {/* Protected Routes (Must be logged in) */}
-              <Route 
-                path="/create" 
-                element={
-                  <PrivateRoute>
-                    <CreatePost />
-                  </PrivateRoute>
-                } 
-              />
-              
-              <Route 
-                path="/edit/:id" 
-                element={
-                  <PrivateRoute>
-                    <EditPost />
-                  </PrivateRoute>
-                } 
-              />
-
-              {/* Catch-all: Redirect unknown paths to Home */}
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </main>
-          
-          <footer className="py-10 text-center text-gray-400 text-sm">
-            © 2026 BlogHub Management System. Built with MERN Stack.
-          </footer>
-        </div>
-      </Router>
-    </AuthProvider>
-  );
+const ProtectedLayout = () => {
+  const { user, loading } = useAuth()
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <span style={{ color: '#888780', fontSize: 13 }}>Loading…</span>
+    </div>
+  )
+  return user ? <Layout /> : <Navigate to="/login" replace />
 }
 
-export default App;
+export default function App() {
+  return (
+    <>
+      <ToastContainer />
+      <Routes>
+        {/* Public */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        {/* Protected — ProtectedLayout renders <Layout /> which renders <Outlet /> */}
+        <Route element={<ProtectedLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/posts" element={<PostsPage />} />
+          <Route path="/posts/new" element={<PostEditorPage />} />
+          <Route path="/posts/edit/:id" element={<PostEditorPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/theme" element={<ThemePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Route>
+      </Routes>
+    </>
+  )
+}

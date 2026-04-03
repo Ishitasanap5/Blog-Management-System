@@ -1,30 +1,37 @@
-import { useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import { LogOut, PenSquare } from 'lucide-react';
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = () => {
-    const { user, logout } = useContext(AuthContext);
-    const navigate = useNavigate();
+export default function Navbar() {
+  const { user, setUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-    return (
-        <nav className="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-50">
-            <Link to="/" className="text-2xl font-bold text-blue-600 flex items-center gap-2">
-                <PenSquare /> BlogHub
-            </Link>
-            <div className="flex gap-4 items-center">
-                <Link to="/" className="hover:text-blue-600 font-medium">Home</Link>
-                {user ? (
-                    <>
-                        <Link to="/create" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Write</Link>
-                        <span className="text-gray-600 hidden sm:block">Hi, {user.name}</span>
-                        <button onClick={() => { logout(); navigate('/login'); }} className="text-red-500"><LogOut /></button>
-                    </>
-                ) : (
-                    <Link to="/login" className="bg-gray-800 text-white px-4 py-2 rounded-lg">Login</Link>
-                )}
-            </div>
-        </nav>
-    );
-};
-export default Navbar;
+  const handleLogout = () => {
+    setUser(null); // clear auth context
+    navigate("/login");
+  };
+
+  return (
+    <nav className="bg-[#534AB7] text-white flex justify-between items-center px-6 py-4">
+      <div className="font-bold text-xl">
+        <Link to="/">Blogify</Link>
+      </div>
+      <ul className="flex gap-4 items-center">
+        <Link to="/" className="hover:text-[#EEEDFE]">Home</Link>
+
+        {user ? (
+          <>
+            <Link to="/dashboard" className="hover:text-[#EEEDFE]">Dashboard</Link>
+            <Link to="/create" className="hover:text-[#7F77DD] bg-[#EEEDFE] text-[#534AB7] px-3 py-1 rounded">Create Post</Link>
+            <button onClick={handleLogout} className="hover:text-[#EEEDFE]">Logout</button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="hover:text-[#EEEDFE]">Login</Link>
+            <Link to="/register" className="hover:text-[#7F77DD] bg-[#EEEDFE] text-[#534AB7] px-3 py-1 rounded">Sign Up</Link>
+          </>
+        )}
+      </ul>
+    </nav>
+  );
+}
